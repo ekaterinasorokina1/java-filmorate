@@ -1,32 +1,26 @@
 package ru.yandex.practicum.filmorate;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.utils.LocalDateAdapter;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FilmControllerTest {
-    Gson gson;
-
     public FilmControllerTest() throws IOException {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gson = gsonBuilder
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .create();
     }
+
+    @Autowired
+    TestRestTemplate template;
 
     @Test
     void get400StatusIfEmptyDuration() throws IOException, InterruptedException {
@@ -34,18 +28,9 @@ public class FilmControllerTest {
         film.setName("Test");
         film.setDescription("");
         film.setReleaseDate(LocalDate.of(2024, 10, 2));
-        String stringFilm = gson.toJson(film);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/films");
+        ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringFilm))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(400, response.statusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
     @Test
@@ -55,18 +40,10 @@ public class FilmControllerTest {
         film.setDescription("");
         film.setReleaseDate(LocalDate.of(2024, 10, 2));
         film.setDuration(-1);
-        String stringFilm = gson.toJson(film);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/films");
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringFilm))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
 
-        assertEquals(400, response.statusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
     @Test
@@ -76,18 +53,10 @@ public class FilmControllerTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2024, 10, 2));
         film.setDuration(115);
-        String stringFilm = gson.toJson(film);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/films");
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringFilm))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
 
-        assertEquals(200, response.statusCode());
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
     }
 
 
@@ -97,18 +66,10 @@ public class FilmControllerTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2024, 10, 2));
         film.setDuration(115);
-        String stringFilm = gson.toJson(film);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/films");
+        ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringFilm))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
 
-        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -118,18 +79,10 @@ public class FilmControllerTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(1784, 10, 2));
         film.setDuration(115);
-        String stringFilm = gson.toJson(film);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/films");
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringFilm))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
 
-        assertEquals(500, response.statusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
     }
 
     @Test
@@ -139,31 +92,16 @@ public class FilmControllerTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2024, 10, 2));
         film.setDuration(115);
-        String stringFilm = gson.toJson(film);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/films");
 
-        HttpRequest requestToPost = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringFilm))
-                .header("Content-Type", "application/json")
-                .build();
+        template.postForEntity("/films", film, Film.class);
+        ResponseEntity<Film[]> entity = template.getForEntity("/films", Film[].class);
 
-        client.send(requestToPost, HttpResponse.BodyHandlers.ofString());
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode());
-        List<Film> filmsFromResponse = gson.fromJson(response.body(), new FilmsListTypeToken().getType());
-        assertEquals("Test", filmsFromResponse.get(0).getName(), "Имя фильма должно быть Test");
-        assertEquals(115, filmsFromResponse.get(0).getDuration(), "Продолжительность фильма должно быть 115 минут");
-        assertEquals("Description", filmsFromResponse.get(0).getDescription(), "Описание фильма должно быть Description");
-        assertEquals("2024-10-02", filmsFromResponse.get(0).getReleaseDate().toString(), "Дата релиза фильма должно быть 2024-10-02");
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
+        Film[] films = entity.getBody();
+        assertEquals("Test", films[0].getName(), "Имя фильма должно быть Test");
+        assertEquals(115, films[0].getDuration(), "Продолжительность фильма должно быть 115 минут");
+        assertEquals("Description", films[0].getDescription(), "Описание фильма должно быть Description");
+        assertEquals("2024-10-02", films[0].getReleaseDate().toString(), "Дата релиза фильма должно быть 2024-10-02");
     }
 
 }

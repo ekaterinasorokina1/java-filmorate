@@ -1,33 +1,27 @@
 package ru.yandex.practicum.filmorate;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.utils.LocalDateAdapter;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerTest {
-    Gson gson;
 
     public UserControllerTest() throws IOException {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gson = gsonBuilder
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .create();
     }
+
+    @Autowired
+    TestRestTemplate template;
 
     @Test
     void get400StatusIfEmptyEmail() throws IOException, InterruptedException {
@@ -35,18 +29,10 @@ public class UserControllerTest {
         user.setName("Test");
         user.setLogin("login");
         user.setBirthday(LocalDate.of(1994, 10, 2));
-        String stringUser = gson.toJson(user);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/users");
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringUser))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        ResponseEntity<User> entity = template.postForEntity("/users", user, User.class);
 
-        assertEquals(400, response.statusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
     @Test
@@ -56,18 +42,9 @@ public class UserControllerTest {
         user.setLogin("login");
         user.setEmail("wrongEmail");
         user.setBirthday(LocalDate.of(1994, 10, 2));
-        String stringUser = gson.toJson(user);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/users");
+        ResponseEntity<User> entity = template.postForEntity("/users", user, User.class);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringUser))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(400, response.statusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
     @Test
@@ -77,18 +54,9 @@ public class UserControllerTest {
         user.setLogin("login with spaces");
         user.setEmail("email@mail.ru");
         user.setBirthday(LocalDate.of(1994, 10, 2));
-        String stringUser = gson.toJson(user);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/users");
+        ResponseEntity<User> entity = template.postForEntity("/users", user, User.class);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringUser))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(500, response.statusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
     }
 
     @Test
@@ -98,18 +66,9 @@ public class UserControllerTest {
         user.setLogin("login");
         user.setEmail("email@mail.ru");
         user.setBirthday(LocalDate.of(2025, 10, 2));
-        String stringUser = gson.toJson(user);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/users");
+        ResponseEntity<User> entity = template.postForEntity("/users", user, User.class);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringUser))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(400, response.statusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
     @Test
@@ -119,18 +78,9 @@ public class UserControllerTest {
         user.setLogin("login");
         user.setEmail("email@mail.ru");
         user.setBirthday(LocalDate.of(2025, 5, 2));
-        String stringUser = gson.toJson(user);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/users");
+        ResponseEntity<User> entity = template.postForEntity("/users", user, User.class);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringUser))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode());
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
     }
 
     @Test
@@ -140,31 +90,18 @@ public class UserControllerTest {
         user.setLogin("login");
         user.setEmail("email@mail.ru");
         user.setBirthday(LocalDate.of(2025, 5, 2));
-        String stringUser = gson.toJson(user);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/users");
 
-        HttpRequest requestToPost = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(stringUser))
-                .header("Content-Type", "application/json")
-                .build();
-        client.send(requestToPost, HttpResponse.BodyHandlers.ofString());
+        template.postForEntity("/users", user, User.class);
+        ResponseEntity<User[]> entity = template.getForEntity("/users", User[].class);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
+        User[] users = entity.getBody();
 
-        assertEquals(200, response.statusCode());
-        List<User> usersFromResponse = gson.fromJson(response.body(), new UsersListTypeToken().getType());
-
-        assertNotNull(usersFromResponse, "Должен вернуться список пользователей");
-        assertEquals("Test", usersFromResponse.get(0).getName(), "Имя пользователя должно быть Test");
-        assertEquals("login", usersFromResponse.get(0).getLogin(), "Логин пользователя должно быть login");
-        assertEquals("email@mail.ru", usersFromResponse.get(0).getEmail(), "Email пользователя должно быть email@mail.ru");
-        assertEquals("2025-05-02", usersFromResponse.get(0).getBirthday().toString(), "Дата рождения пользователя должна быть 2025-05-02");
+        assertNotNull(users, "Должен вернуться список пользователей");
+        assertEquals("Test", users[0].getName(), "Имя пользователя должно быть Test");
+        assertEquals("login", users[0].getLogin(), "Логин пользователя должно быть login");
+        assertEquals("email@mail.ru", users[0].getEmail(), "Email пользователя должно быть email@mail.ru");
+        assertEquals("2025-05-02", users[0].getBirthday().toString(), "Дата рождения пользователя должна быть 2025-05-02");
     }
 }
 

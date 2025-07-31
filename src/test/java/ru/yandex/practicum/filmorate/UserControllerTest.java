@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
@@ -166,9 +165,6 @@ public class UserControllerTest {
         assertEquals("login", usersFromResponse.get(0).getLogin(), "Логин пользователя должно быть login");
         assertEquals("email@mail.ru", usersFromResponse.get(0).getEmail(), "Email пользователя должно быть email@mail.ru");
         assertEquals("2025-05-02", usersFromResponse.get(0).getBirthday().toString(), "Дата рождения пользователя должна быть 2025-05-02");
-
     }
 }
 
-class UsersListTypeToken extends TypeToken<List<User>> {
-}

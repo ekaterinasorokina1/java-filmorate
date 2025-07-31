@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -167,7 +166,4 @@ public class FilmControllerTest {
         assertEquals("2024-10-02", filmsFromResponse.get(0).getReleaseDate().toString(), "Дата релиза фильма должно быть 2024-10-02");
     }
 
-}
-
-class FilmsListTypeToken extends TypeToken<List<Film>> {
 }

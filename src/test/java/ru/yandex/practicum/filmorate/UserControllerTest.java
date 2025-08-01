@@ -48,7 +48,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void get500StatusIfWrongLogin() throws IOException, InterruptedException {
+    void get400StatusIfWrongLogin() throws IOException, InterruptedException {
         User user = new User();
         user.setName("Test");
         user.setLogin("login with spaces");
@@ -56,7 +56,7 @@ public class UserControllerTest {
         user.setBirthday(LocalDate.of(1994, 10, 2));
         ResponseEntity<User> entity = template.postForEntity("/users", user, User.class);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
     @Test

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validation.ValidateReleaseDate;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,8 +22,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
-        ValidateReleaseDate.validateFilm(film);
+    public Film create(@RequestBody @Valid Film film) {
         film.setId(getNextId());
         films.put(film.getId(), film);
 
@@ -38,7 +36,6 @@ public class FilmController {
             log.error("Отсутсвует id");
             throw new ValidationException("Id должен быть указан");
         }
-        ValidateReleaseDate.validateFilm(newFilm);
 
         if (films.containsKey(newFilm.getId())) {
             Film film = films.get(newFilm.getId());

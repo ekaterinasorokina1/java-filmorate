@@ -73,7 +73,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    void get500StatusWhenCreateFilmWithEarlyReleaseDate() throws IOException, InterruptedException {
+    void get400StatusWhenCreateFilmWithEarlyReleaseDate() throws IOException, InterruptedException {
         Film film = new Film();
         film.setName("Test old Release Date");
         film.setDescription("Description");
@@ -82,7 +82,7 @@ public class FilmControllerTest {
 
         ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
     @Test

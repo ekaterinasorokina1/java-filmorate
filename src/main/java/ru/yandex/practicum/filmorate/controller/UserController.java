@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.validation.ValidateLogin;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,8 +25,6 @@ public class UserController {
     public User create(@Valid @RequestBody User user) {
         user.setId(getNextId());
 
-        ValidateLogin.validateUser(user);
-
         if (user.getName() == null || user.getName().isBlank()) {
             log.info("Имя пользователя пустое, поэтому оно будет равно логину");
             user.setName(user.getLogin());
@@ -45,8 +42,6 @@ public class UserController {
         }
         if (users.containsKey(newUser.getId())) {
             User oldUser = users.get(newUser.getId());
-
-            ValidateLogin.validateUser(newUser);
 
             if (newUser.getName() != null && !newUser.getName().isBlank()) {
                 oldUser.setName(newUser.getName());

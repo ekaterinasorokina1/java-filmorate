@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validation.ValidateLogin;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,10 +26,7 @@ public class UserController {
     public User create(@Valid @RequestBody User user) {
         user.setId(getNextId());
 
-        if (!user.getLogin().matches("\\S+")) {
-            log.error("Логин содержит пробелы");
-            throw new ValidationException("Логин не может содержать пробелы");
-        }
+        ValidateLogin.validateUser(user);
 
         if (user.getName() == null || user.getName().isBlank()) {
             log.info("Имя пользователя пустое, поэтому оно будет равно логину");
@@ -47,6 +45,8 @@ public class UserController {
         }
         if (users.containsKey(newUser.getId())) {
             User oldUser = users.get(newUser.getId());
+
+            ValidateLogin.validateUser(newUser);
 
             if (newUser.getName() != null && !newUser.getName().isBlank()) {
                 oldUser.setName(newUser.getName());
@@ -70,11 +70,4 @@ public class UserController {
         return ++currentMaxId;
     }
 
-    private boolean isEmailExist(User user) {
-        return users.values().stream().map(User::getEmail).anyMatch(u -> u.equals(user.getEmail()));
-    }
-
-    private boolean isLoginExist(User user) {
-        return users.values().stream().map(User::getLogin).anyMatch(u -> u.equals(user.getLogin()));
-    }
 }

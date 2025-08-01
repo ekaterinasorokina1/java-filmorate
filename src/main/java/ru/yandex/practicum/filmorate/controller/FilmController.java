@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.validation.ValidateReleaseDate;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,15 +24,7 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("Дата релиза меньше 28 декабря 1895 года");
-            throw new ValidationException("дата релиза — должна быть не раньше 28 декабря 1895 года");
-        }
-
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            log.error("Длина описания превышает 200 символов");
-            throw new ValidationException("Максимальная длина описания — 200 символов");
-        }
+        ValidateReleaseDate.validateFilm(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
 
@@ -46,10 +38,7 @@ public class FilmController {
             log.error("Отсутсвует id");
             throw new ValidationException("Id должен быть указан");
         }
-        if (newFilm.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("Дата релиза не должна быть меньше 28 декабря 1895 года");
-            throw new ValidationException("Дата релиза — должна быть не раньше 28 декабря 1895 года");
-        }
+        ValidateReleaseDate.validateFilm(newFilm);
 
         if (films.containsKey(newFilm.getId())) {
             Film film = films.get(newFilm.getId());

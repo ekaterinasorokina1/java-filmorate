@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.annotation.NotEmptySpaces;
 
 import java.time.LocalDate;
 
@@ -18,6 +19,7 @@ public class User {
 
     @NotBlank
     @NotNull
+    @NotEmptySpaces
     private String login;
 
     private String name;

@@ -16,8 +16,8 @@ import java.util.*;
 @RequestMapping("users")
 @RequiredArgsConstructor
 public class UserController {
-    final private UserService userService;
-    final private UserStorage userStorage;
+    private final UserService userService;
+    private final UserStorage userStorage;
 
     @GetMapping
     public Collection<User> getAllUsers() {

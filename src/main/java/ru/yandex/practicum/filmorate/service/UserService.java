@@ -14,7 +14,7 @@ import java.util.Set;
 @Slf4j
 @Service
 public class UserService {
-    UserStorage userStorage;
+    private final UserStorage userStorage;
 
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;

@@ -13,8 +13,8 @@ import java.util.*;
 @Slf4j
 @Service
 public class FilmService {
-    FilmStorage filmStorage;
-    UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
@@ -38,12 +38,10 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(Integer count) {
-        int limitCount = count != null ? count : 10;
-
         List<Film> allFilms = new ArrayList<>(filmStorage.getAll());
-        allFilms.sort(Collections.reverseOrder(friendComparator));
+        allFilms.sort(Collections.reverseOrder(Comparator.comparingInt(f -> f.getLikes().size())));
 
-        return allFilms.stream().limit(limitCount).toList();
+        return allFilms.stream().limit(count).toList();
     }
 
     private Film getFilm(int filmId) {
@@ -63,6 +61,4 @@ public class FilmService {
         }
         return user.get();
     }
-
-    Comparator<Film> friendComparator = Comparator.comparingInt(f -> f.getLikes().size());
 }

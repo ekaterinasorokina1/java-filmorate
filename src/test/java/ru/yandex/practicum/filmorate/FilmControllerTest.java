@@ -7,10 +7,12 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.io.IOException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -53,6 +55,7 @@ public class FilmControllerTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2024, 10, 2));
         film.setDuration(115);
+        film.setRating(Rating.R);
 
         ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
 
@@ -92,6 +95,7 @@ public class FilmControllerTest {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2024, 10, 2));
         film.setDuration(115);
+        film.setRating(Rating.R);
 
         template.postForEntity("/films", film, Film.class);
         ResponseEntity<Film[]> entity = template.getForEntity("/films", Film[].class);

@@ -36,12 +36,10 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         this.jdbc = jdbc;
     }
 
-    @Override
     public List<Film> getAll() {
         return findMany(FIND_ALL_QUERY);
     }
 
-    @Override
     public Film create(Film film) {
         int id = insert(
                 INSERT_QUERY,
@@ -57,7 +55,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         return film;
     }
 
-    @Override
     public Film update(Film film) {
         update(
                 UPDATE_QUERY,
@@ -71,22 +68,18 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         return film;
     }
 
-    @Override
     public Optional<Film> getById(int filmId) {
         return findOne(FIND_BY_ID_QUERY, filmId);
     }
 
-    @Override
     public void setLike(int filmId, int userId) {
         update(UPDATE_QUERY_ADD_LIKE, filmId, userId);
     }
 
-    @Override
     public void deleteLike(int filmId, int userId) {
         update(DELETE_QUERY_LIKE, filmId, userId);
     }
 
-    @Override
     public List<Film> getPopular(int count) {
         return findMany(GET_POPULAR, count);
     }

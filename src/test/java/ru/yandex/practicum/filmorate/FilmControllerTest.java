@@ -47,6 +47,20 @@ public class FilmControllerTest {
     }
 
     @Test
+    void get200StatusWhenCreateFilm() throws IOException, InterruptedException {
+        Film film = new Film();
+        film.setName("Test");
+        film.setDescription("Description");
+        film.setReleaseDate(LocalDate.of(2024, 10, 2));
+        film.setDuration(115);
+
+        ResponseEntity<Film> entity = template.postForEntity("/films", film, Film.class);
+
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
+    }
+
+
+    @Test
     void get400StatusWhenCreateFilmWithEmptyName() throws IOException, InterruptedException {
         Film film = new Film();
         film.setDescription("Description");
@@ -70,4 +84,24 @@ public class FilmControllerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
+
+    @Test
+    void getFilmAllFields() throws IOException, InterruptedException {
+        Film film = new Film();
+        film.setName("Test");
+        film.setDescription("Description");
+        film.setReleaseDate(LocalDate.of(2024, 10, 2));
+        film.setDuration(115);
+
+        template.postForEntity("/films", film, Film.class);
+        ResponseEntity<Film[]> entity = template.getForEntity("/films", Film[].class);
+
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
+        Film[] films = entity.getBody();
+        assertEquals("Test", films[0].getName(), "Имя фильма должно быть Test");
+        assertEquals(115, films[0].getDuration(), "Продолжительность фильма должно быть 115 минут");
+        assertEquals("Description", films[0].getDescription(), "Описание фильма должно быть Description");
+        assertEquals("2024-10-02", films[0].getReleaseDate().toString(), "Дата релиза фильма должно быть 2024-10-02");
+    }
+
 }

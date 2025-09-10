@@ -22,7 +22,7 @@ public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorag
     public GenreDbStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);
     }
-    
+
     public List<Genre> getAll() {
         return findMany(FIND_ALL_QUERY);
     }

@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Component
 public class UserRowMapper implements RowMapper<User> {
     @Override
-    public User mapRow(ResultSet resultSet, int rowNum) throws SQLException  {
+    public User mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         User user = new User();
         user.setId(resultSet.getInt("user_id"));
         user.setEmail(resultSet.getString("email"));

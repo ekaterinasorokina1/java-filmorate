@@ -18,6 +18,7 @@ public class UserMapper {
 
         return user;
     }
+
     public static UserDto mapToUserDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -25,9 +26,9 @@ public class UserMapper {
         dto.setLogin(user.getLogin());
         dto.setName(user.getName());
         dto.setBirthday(user.getBirthday());
-//        dto.setBirthday(Instant.from(LocalDateTime.of(user.getBirthday().getYear(), user.getBirthday().getMonth(), user.getBirthday().getDayOfMonth(), 0,0)));
         return dto;
     }
+
     public static User updateUserFields(User user, UpdateUserRequest request) {
         if (request.hasEmail()) {
             user.setEmail(request.getEmail());

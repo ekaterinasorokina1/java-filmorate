@@ -5,9 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -32,6 +30,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "LIMIT ?";
 
     JdbcTemplate jdbc;
+
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
         this.jdbc = jdbc;
@@ -100,6 +99,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             for (int idx = 0; idx < params.length; idx++) {
                 ps.setObject(idx + 1, params[idx]);
             }
-            return ps;}, keyHolder);
+            return ps;
+        }, keyHolder);
     }
 }

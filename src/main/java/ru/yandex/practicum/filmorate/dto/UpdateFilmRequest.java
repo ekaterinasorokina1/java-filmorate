@@ -32,22 +32,16 @@ public class UpdateFilmRequest {
     public boolean hasName() {
         return !(name == null || name.isBlank());
     }
+
     public boolean hasDescription() {
         return !(description == null || description.isBlank());
     }
+
     public boolean hasReleaseDate() {
         return !(releaseDate == null);
     }
+
     public boolean hasDuration() {
         return duration != null;
-    }
-//    public boolean hasRating() {
-//        return mpa != null;
-//    }
-//    public boolean hasGenres() {
-//        return genres != null;
-//    }
-    public boolean hasLikes() {
-        return likes != null;
     }
 }

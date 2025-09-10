@@ -26,8 +26,7 @@ public class UserServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        String DELETE_USER = "DELETE FROM users";
-        jdbc.update(DELETE_USER);
+        jdbc.update("DELETE FROM users");
         jdbc.execute("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1");
     }
 

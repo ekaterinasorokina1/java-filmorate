@@ -23,12 +23,10 @@ public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorag
         super(jdbc, mapper);
     }
     
-    @Override
     public List<Genre> getAll() {
         return findMany(FIND_ALL_QUERY);
     }
 
-    @Override
     public Optional<Genre> getById(int genreId) {
         return findOne(FIND_BY_ID_QUERY, genreId);
     }

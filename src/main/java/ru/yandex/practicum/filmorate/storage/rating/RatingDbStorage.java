@@ -18,12 +18,10 @@ public class RatingDbStorage extends BaseRepository<Rating> implements RatingSto
         super(jdbc, mapper);
     }
 
-    @Override
     public List<Rating> getAll() {
         return jdbc.query(FIND_ALL_QUERY, mapper);
     }
 
-    @Override
     public Optional<Rating> findById(int ratingId) {
         return findOne(FIND_BY_ID_QUERY, ratingId);
     }

@@ -149,6 +149,7 @@ public class FilmService {
             throw new NotFoundException("Фильм с id " + filmId + " не найден");
         }
     }
+
     private void validateUser(int userId) {
         Optional<User> user = userStorage.getById(userId);
         if (user.isEmpty()) {

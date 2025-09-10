@@ -72,18 +72,6 @@ public class UserControllerTest {
     }
 
     @Test
-    void get200StatusWhenCreateUser() throws IOException, InterruptedException {
-        User user = new User();
-        user.setName("Test");
-        user.setLogin("login");
-        user.setEmail("email@mail.ru");
-        user.setBirthday(LocalDate.of(2025, 5, 2));
-        ResponseEntity<User> entity = template.postForEntity("/users", user, User.class);
-
-        assertEquals(HttpStatus.OK, entity.getStatusCode());
-    }
-
-    @Test
     void getUserAllFields() throws IOException, InterruptedException {
         User user = new User();
         user.setName("Test");

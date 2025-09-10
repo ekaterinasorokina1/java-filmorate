@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,13 +8,9 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.NotEmptySpaces;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 @Data
-public class User {
-    private Integer id;
-
+public class NewUserRequest {
     @NotNull
     @Email
     private String email;
@@ -28,6 +24,4 @@ public class User {
 
     @Past
     private LocalDate birthday;
-
-    private Map<Integer, FriendStatus> friends = new HashMap<>();
 }

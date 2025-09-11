@@ -60,7 +60,7 @@ public class UserService {
             log.error("Отсутсвует Пользователь с id = {}", userId);
             throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
-        if (!user.get().getFriends().containsKey(friendId)) {
+        if (!user.get().getFriends().contains(friendId)) {
             userStorage.addFriend(userId, friendId);
         }
     }

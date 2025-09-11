@@ -8,8 +8,8 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.NotEmptySpaces;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class User {
@@ -29,5 +29,5 @@ public class User {
     @Past
     private LocalDate birthday;
 
-    private Map<Integer, FriendStatus> friends = new HashMap<>();
+    private List<Integer> friends = new ArrayList<>();
 }

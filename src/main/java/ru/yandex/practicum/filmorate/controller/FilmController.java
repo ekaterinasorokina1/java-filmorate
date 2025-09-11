@@ -17,7 +17,6 @@ import java.util.List;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
-    //    private final FilmStorage filmStorage;
     private final FilmService filmService;
 
     @GetMapping

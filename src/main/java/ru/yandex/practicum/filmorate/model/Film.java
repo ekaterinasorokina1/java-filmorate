@@ -34,5 +34,5 @@ public class Film {
     private List<Genre> genres = new ArrayList<>();
 
     @NotNull
-    private int rating;
+    private Rating rating;
 }

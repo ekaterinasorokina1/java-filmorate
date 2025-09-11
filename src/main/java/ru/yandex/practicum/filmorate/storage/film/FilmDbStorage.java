@@ -14,22 +14,27 @@ import java.util.Optional;
 
 @Repository
 public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
-    private static final String FIND_ALL_QUERY = "SELECT * FROM film";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM film WHERE film_id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT f.*, r.name rating_name, FROM film f " +
+            "LEFT JOIN rating r ON f.rating_id = r.rating_id";
+    private static final String FIND_BY_ID_QUERY = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, r.name rating_name " +
+            "FROM film f " +
+            "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
+            "WHERE film_id = ?";
     private static final String INSERT_QUERY = "INSERT INTO film(name, description, releaseDate, duration, rating_id)" +
             "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE film SET name = ?, description = ?, releaseDate = ?, duration = ? WHERE film_id = ?";
     private static final String INSERT_INTO_FILM_GENRES = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
     private static final String UPDATE_QUERY_ADD_LIKE = "INSERT INTO likes(film_id, user_id)" + "VALUES(?, ?)";
     private static final String DELETE_QUERY_LIKE = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-    private static final String GET_POPULAR = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration, f.rating_id " +
+    private static final String GET_POPULAR = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, r.name rating_name  " +
             "FROM film f " +
-            "JOIN likes l ON f.film_id = l.film_id " +
+            "LEFT JOIN likes l ON f.film_id = l.film_id " +
+            "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
             "GROUP BY f.film_id " +
             "ORDER BY COUNT(l.user_id) DESC " +
             "LIMIT ?";
 
-    JdbcTemplate jdbc;
+    private final JdbcTemplate jdbc;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -47,7 +52,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getRating()
+                film.getRating().getId()
         );
         film.setId(id);
         film.getGenres().forEach(genre -> setFilmGenres(id, genre.getId()));
@@ -84,7 +89,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         return findMany(GET_POPULAR, count);
     }
 
-    public void setFilmGenres(Object... params) {
+    private void setFilmGenres(Object... params) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
             PreparedStatement ps = connection

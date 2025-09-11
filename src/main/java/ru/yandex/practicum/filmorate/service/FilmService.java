@@ -47,9 +47,7 @@ public class FilmService {
         }
         Film filmExist = film.get();
         filmExist.setGenres(genreStorage.getFilmGenres(filmId));
-        FilmDto filmDto = FilmMapper.mapToFilmDto(filmExist);
-        filmDto.setMpa(ratingStorage.findById(filmExist.getRating()).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
-        return filmDto;
+        return FilmMapper.mapToFilmDto(filmExist);
     }
 
     public List<FilmDto> getAll() {
@@ -72,11 +70,10 @@ public class FilmService {
 
         Film film = FilmMapper.mapToFilm(request);
         film.setGenres(genres);
+        film.setRating(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
 
         film = filmStorage.create(film);
-        FilmDto filmDto = FilmMapper.mapToFilmDto(film);
-        filmDto.setMpa(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
-        return filmDto;
+        return FilmMapper.mapToFilmDto(film);
     }
 
     public FilmDto update(UpdateFilmRequest request) {
@@ -89,8 +86,6 @@ public class FilmService {
             genres.add(genreStorage.getById(genre.get("id")).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
         });
         updatedFilm.setGenres(genres);
-
-        updatedFilm.setRating(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")).getId());
 
         updatedFilm = filmStorage.update(updatedFilm);
         return FilmMapper.mapToFilmDto(updatedFilm);
@@ -116,13 +111,7 @@ public class FilmService {
         films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
 
         return films.stream()
-                .map(film -> {
-                    FilmDto filmDto = FilmMapper.mapToFilmDto(film);
-                    filmDto.setMpa(ratingStorage
-                            .findById(film.getRating())
-                            .orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
-                    return filmDto;
-                })
+                .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }
 

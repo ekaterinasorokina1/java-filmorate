@@ -13,7 +13,6 @@ public class FilmMapper {
         film.setDescription(request.getDescription());
         film.setReleaseDate(request.getReleaseDate());
         film.setDuration(request.getDuration());
-        film.setRating(request.getMpa().get("id"));
         return film;
     }
 
@@ -25,7 +24,7 @@ public class FilmMapper {
         dto.setReleaseDate(film.getReleaseDate());
         dto.setDuration(film.getDuration());
         dto.setGenres(film.getGenres());
-
+        dto.setMpa(film.getRating());
         return dto;
     }
 

@@ -1,2 +1,3 @@
 # java-filmorate
-Template repository for Filmorate project.
+
+![схема БД приложения](src/main/resources/images/bd-film.png)

@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
@@ -17,26 +18,27 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserStorage userStorage;
 
     @GetMapping
-    public Collection<User> getAllUsers() {
-        return userStorage.getAll();
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserDto> getAllUsers() {
+        return userService.getUsers();
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
-        return userStorage.create(user);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto create(@Valid @RequestBody NewUserRequest userRequest) {
+        return userService.createUser(userRequest);
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User newUser) {
-        return userStorage.update(newUser);
+    public UserDto update(@Valid @RequestBody UpdateUserRequest userRequest) {
+        return userService.updateUser(userRequest);
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getById(@PathVariable int id) {
-        return userStorage.getById(id);
+    public UserDto getById(@PathVariable int id) {
+        return userService.getUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -51,14 +53,15 @@ public class UserController {
         userService.deleteFriend(id, friendId);
     }
 
+
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public List<User> getFriends(@PathVariable int id) {
+    public List<UserDto> getFriends(@PathVariable int id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+    public List<UserDto> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.getCommonFriend(id, otherId);
     }
 

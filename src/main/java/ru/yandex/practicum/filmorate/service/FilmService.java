@@ -2,17 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
-import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.storage.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -116,34 +114,18 @@ public class FilmService {
     }
 
     private void validateRating(int ratingId) {
-        Optional<Rating> rating = ratingStorage.findById(ratingId);
-        if (rating.isEmpty()) {
-            throw new NotFoundException("Такого рейтинга нет");
-        }
+        ratingStorage.findById(ratingId).orElseThrow(() -> new NotFoundException("Такого рейтинга нет"));
     }
 
     private void validateGenres(List<Integer> genreIds) {
-        genreIds.forEach(genreId -> {
-            Optional<Genre> genre = genreStorage.getById(genreId);
-            if (genre.isEmpty()) {
-                throw new NotFoundException("Такого жанра нет");
-            }
-        });
+        genreIds.forEach(genreId -> genreStorage.getById(genreId).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
     }
 
     private void validateFilm(int filmId) {
-        Optional<Film> film = filmStorage.getById(filmId);
-        if (film.isEmpty()) {
-            log.error("Отсутсвует фильм с id = {}", filmId);
-            throw new NotFoundException("Фильм с id " + filmId + " не найден");
-        }
+        filmStorage.getById(filmId).orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
     }
 
     private void validateUser(int userId) {
-        Optional<User> user = userStorage.getById(userId);
-        if (user.isEmpty()) {
-            log.error("Отсутсвует Пользователь с id = {}", userId);
-            throw new NotFoundException("Пользователь с id " + userId + " не найден");
-        }
+        userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 }

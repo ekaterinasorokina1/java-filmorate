@@ -105,6 +105,13 @@ public class FilmService {
         log.info("Пользователь с id = {} удалил лайк фильму с id = {}", userId, filmId);
     }
 
+    public List<FilmDto> getCommonFilms(int userId, int friendId) {
+        validateUser(userId);
+        validateUser(friendId);
+        //Могу добавить валидацию что пользователи есть в друзьях друг у друга
+        return mapFilmListToDto(filmStorage.getCommonFilms(userId, friendId));
+    }
+
     private List<FilmDto> mapFilmListToDto(List<Film> films) {
         films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
 

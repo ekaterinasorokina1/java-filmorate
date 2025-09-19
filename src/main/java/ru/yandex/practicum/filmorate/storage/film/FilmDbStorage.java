@@ -33,6 +33,17 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "GROUP BY f.film_id " +
             "ORDER BY COUNT(l.user_id) DESC " +
             "LIMIT ?";
+    private static final String GET_COMMON_QUERY =
+            "SELECT f.*, r.name AS rating_name, COUNT(all_likes.user_id) AS popularity " +
+                    "FROM film f " +
+                    "JOIN likes l1 ON f.film_id = l1.film_id " +
+                    "JOIN likes l2 ON f.film_id = l2.film_id " +
+                    "JOIN likes all_likes ON f.film_id = all_likes.film_id " +
+                    "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
+                    "WHERE l1.user_id = ? " +
+                    "AND l2.user_id = ? " +
+                    "GROUP BY f.film_id, r.name " +
+                    "ORDER BY popularity DESC";
 
     private final JdbcTemplate jdbc;
 
@@ -99,5 +110,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             }
             return ps;
         }, keyHolder);
+    }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        return findMany(GET_COMMON_QUERY, userId, friendId);
     }
 }

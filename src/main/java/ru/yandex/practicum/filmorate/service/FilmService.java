@@ -32,8 +32,8 @@ public class FilmService {
         this.genreStorage = genreStorage;
     }
 
-    public List<FilmDto> getPopularFilms(Integer count) {
-        List<Film> films = filmStorage.getPopular(count);
+    public List<FilmDto> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        List<Film> films = filmStorage.getPopular(count, genreId, year);
         return mapFilmListToDto(films);
     }
 

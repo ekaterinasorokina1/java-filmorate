@@ -26,11 +26,13 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String INSERT_INTO_FILM_GENRES = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
     private static final String UPDATE_QUERY_ADD_LIKE = "INSERT INTO likes(film_id, user_id)" + "VALUES(?, ?)";
     private static final String DELETE_QUERY_LIKE = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-    private static final String GET_POPULAR = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, r.name rating_name  " +
+    private static final String GET_POPULAR = "SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, r.name rating_name, fg.genre_id " +
             "FROM film f " +
             "LEFT JOIN likes l ON f.film_id = l.film_id " +
             "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
-            "GROUP BY f.film_id " +
+            "LEFT JOIN film_genre fg ON f.film_id = fg.film_id " +
+            "WHERE (? IS NULL OR fg.genre_id = ?) AND (? IS NULL OR EXTRACT(YEAR FROM CAST(f.releaseDate AS date)) = ?) " +
+            "GROUP BY f.film_id, fg.genre_id " +
             "ORDER BY COUNT(l.user_id) DESC " +
             "LIMIT ?";
     private static final String GET_COMMON_QUERY =
@@ -96,8 +98,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         update(DELETE_QUERY_LIKE, filmId, userId);
     }
 
-    public List<Film> getPopular(int count) {
-        return findMany(GET_POPULAR, count);
+    public List<Film> getPopular(int count, Integer genreId, Integer year) {
+        return findMany(GET_POPULAR, genreId, genreId, year, year, count);
     }
 
     private void setFilmGenres(Object... params) {

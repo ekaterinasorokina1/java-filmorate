@@ -9,5 +9,5 @@ public class Review {
     private Boolean isPositive;
     private Integer userId;
     private Integer filmId;
-    private int useful;
+    private Integer useful;
 }

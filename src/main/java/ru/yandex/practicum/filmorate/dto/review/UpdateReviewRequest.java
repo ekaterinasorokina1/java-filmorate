@@ -9,7 +9,6 @@ import lombok.Data;
 public class UpdateReviewRequest {
     @NotNull
     private Integer id;
-    @NotBlank
     @Size(max = 200)
     private String content;
     private Boolean isPositive;

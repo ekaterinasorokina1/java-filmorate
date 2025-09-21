@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,18 +14,18 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/review")
+@RequestMapping("/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public ReviewDto add(NewReviewRequest request) {
+    public ReviewDto add(@Valid @RequestBody NewReviewRequest request) {
         return reviewService.create(request);
     }
 
     @PutMapping
-    public ReviewDto update(UpdateReviewRequest request) {
+    public ReviewDto update(@Valid @RequestBody UpdateReviewRequest request) {
         return reviewService.update(request);
     }
 

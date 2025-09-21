@@ -25,31 +25,36 @@ public class ReviewService {
     private final UserStorage userStorage;
 
     public ReviewDto create(NewReviewRequest request) {
+        log.info("Создание отзыва: {}", request);
         validateFilm(request.getFilmId());
         validateUser(request.getUserId());
         Review review = ReviewMapper.mapToReview(request);
-
         reviewStorage.create(review);
-        return ReviewMapper.mapToReviewDto(review);
+        log.debug("Отзыв создан с ID: {}", review.getId());
+        return ReviewMapper.mapToReviewDto(reviewStorage.get(review.getId()).get());
     }
 
     public ReviewDto update(UpdateReviewRequest request) {
+        log.info("Обновление отзыва с ID: {}", request.getId());
         Review updatedReview = reviewStorage.get(request.getId())
                 .map(review -> ReviewMapper.updateReviewFields(review, request))
                 .orElseThrow(() -> new NotFoundException("Отзыв не найден"));
 
         reviewStorage.update(updatedReview);
         updatedReview = reviewStorage.get(updatedReview.getId()).get();
-
+        log.debug("Отзыв с ID {} обновлен", updatedReview.getId());
         return ReviewMapper.mapToReviewDto(updatedReview);
     }
 
     public void delete(int reviewId) {
+        log.info("Удаление отзыва с ID: {}", reviewId);
         validateReview(reviewId);
         reviewStorage.delete(reviewId);
+        log.debug("Отзыв с ID {} удален", reviewId);
     }
 
     public ReviewDto get(int reviewId) {
+        log.info("Получение отзыва с ID: {}", reviewId);
         validateReview(reviewId);
         return reviewStorage.get(reviewId)
                 .map(ReviewMapper::mapToReviewDto)
@@ -57,40 +62,50 @@ public class ReviewService {
     }
 
     public List<ReviewDto> getAll(int filmId, int count) {
+        log.info("Получение всех отзывов для фильма ID: {} с ограничением в {} отзывов", filmId, count);
         if (filmId == -1) {
-            return reviewStorage.getAll(count).stream().
-                    map(ReviewMapper::mapToReviewDto).collect(Collectors.toList());
+            return reviewStorage.getAll(count).stream()
+                    .map(ReviewMapper::mapToReviewDto)
+                    .collect(Collectors.toList());
         }
         else {
             validateFilm(filmId);
-            return reviewStorage.getAllFromFilm(filmId, count).stream().
-                    map(ReviewMapper::mapToReviewDto).collect(Collectors.toList());
+            return reviewStorage.getAllFromFilm(filmId, count).stream()
+                    .map(ReviewMapper::mapToReviewDto)
+                    .collect(Collectors.toList());
         }
     }
 
-
     public void like(int reviewId, int userId) {
+        log.info("Добавление лайка от пользователя ID {} к отзыву ID {}", userId, reviewId);
         validateReview(reviewId);
         validateUser(userId);
         reviewStorage.like(reviewId, userId);
+        log.debug("Лайк добавлен к отзыву ID {} от пользователя ID {}", reviewId, userId);
     }
 
     public void dislike(int reviewId, int userId) {
+        log.info("Добавление дизлайка от пользователя ID {} к отзыву ID {}", userId, reviewId);
         validateReview(reviewId);
         validateUser(userId);
         reviewStorage.dislike(reviewId, userId);
+        log.debug("Дизлайк добавлен к отзыву ID {} от пользователя ID {}", reviewId, userId);
     }
 
     public void removeLike(int reviewId, int userId) {
+        log.info("Удаление лайка у отзыва ID {} от пользователя ID {}", reviewId, userId);
         validateReview(reviewId);
         validateUser(userId);
         reviewStorage.deleteLike(reviewId, userId);
+        log.debug("Лайк удален у отзыва ID {} от пользователя ID {}", reviewId, userId);
     }
 
     public void removeDislike(int reviewId, int userId) {
+        log.info("Удаление дизлайка у отзыва ID {} от пользователя ID {}", reviewId, userId);
         validateReview(reviewId);
         validateUser(userId);
         reviewStorage.deleteDislike(reviewId, userId);
+        log.debug("Дизлайк удален у отзыва ID {} от пользователя ID {}", reviewId, userId);
     }
 
     private void validateFilm(int filmId) {

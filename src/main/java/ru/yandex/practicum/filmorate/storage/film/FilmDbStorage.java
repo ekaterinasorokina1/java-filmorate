@@ -46,6 +46,12 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                     "AND l2.user_id = ? " +
                     "GROUP BY f.film_id, r.name " +
                     "ORDER BY popularity DESC";
+    private static final String GET_LIKED_QUERY =
+            "SELECT f.*, r.name AS rating_name " +
+                    "FROM film AS f " +
+                    "JOIN likes AS l ON f.film_id = l.film_id " +
+                    "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
+                    "WHERE l.user_id = ?";
 
     private final JdbcTemplate jdbc;
 
@@ -116,5 +122,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     public List<Film> getCommonFilms(int userId, int friendId) {
         return findMany(GET_COMMON_QUERY, userId, friendId);
+    }
+
+    public List<Film> getLikedFilms(int userId) {
+        return findMany(GET_LIKED_QUERY, userId);
     }
 }

@@ -8,7 +8,10 @@ import ru.yandex.practicum.filmorate.dto.review.ReviewDto;
 import ru.yandex.practicum.filmorate.dto.review.UpdateReviewRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
+import ru.yandex.practicum.filmorate.model.FeedEventType;
+import ru.yandex.practicum.filmorate.model.FeedOperationType;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -23,6 +26,7 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     public ReviewDto create(NewReviewRequest request) {
         log.info("Создание отзыва: {}", request);
@@ -31,6 +35,9 @@ public class ReviewService {
         Review review = ReviewMapper.mapToReview(request);
         review = reviewStorage.create(review);
         log.debug("Отзыв создан с ID: {}", review.getId());
+
+        feedStorage.add(review.getUserId(), FeedEventType.REVIEW, FeedOperationType.ADD, review.getId());
+
         return ReviewMapper.mapToReviewDto(review);
     }
 
@@ -43,12 +50,18 @@ public class ReviewService {
         reviewStorage.update(updatedReview);
         updatedReview = reviewStorage.get(updatedReview.getId()).get();
         log.debug("Отзыв с ID {} обновлен", updatedReview.getId());
+
+        feedStorage.add(updatedReview.getUserId(), FeedEventType.REVIEW, FeedOperationType.UPDATE, updatedReview.getId());
+
         return ReviewMapper.mapToReviewDto(updatedReview);
     }
 
     public void delete(int reviewId) {
         log.info("Удаление отзыва с ID: {}", reviewId);
-        validateReview(reviewId);
+
+        Review review = reviewStorage.get(reviewId).orElseThrow(() -> new NotFoundException("Отзыв не найден"));
+        feedStorage.add(review.getUserId(), FeedEventType.REVIEW, FeedOperationType.REMOVE, reviewId);
+
         reviewStorage.delete(reviewId);
         log.debug("Отзыв с ID {} удален", reviewId);
     }

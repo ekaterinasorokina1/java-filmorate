@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
@@ -7,7 +8,11 @@ import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.FeedEventType;
+import ru.yandex.practicum.filmorate.model.FeedOperationType;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -15,12 +20,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final FeedStorage feedStorage;
 
     public UserDto createUser(NewUserRequest request) {
         User user = UserMapper.mapToUser(request);
@@ -58,6 +61,8 @@ public class UserService {
 
         if (!user.getFriends().contains(friendId)) {
             userStorage.addFriend(userId, friendId);
+
+            feedStorage.add(userId, FeedEventType.FRIEND, FeedOperationType.ADD, friendId);
         }
     }
 
@@ -66,6 +71,8 @@ public class UserService {
         validateUser(friendId);
 
         userStorage.deleteFriend(userId, friendId);
+
+        feedStorage.add(userId, FeedEventType.FRIEND, FeedOperationType.REMOVE, friendId);
     }
 
     public List<UserDto> getFriends(int userId) {
@@ -79,6 +86,11 @@ public class UserService {
         validateUser(userId);
 
         return userStorage.getCommonFriend(userId, otherId).stream().map(UserMapper::mapToUserDto).toList();
+    }
+
+    public List<Feed> getFeed(int userId) {
+        validateUser(userId);
+        return feedStorage.getAll(userId);
     }
 
     private void validateUser(int userId) {

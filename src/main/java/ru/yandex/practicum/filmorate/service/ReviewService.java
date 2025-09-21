@@ -29,9 +29,9 @@ public class ReviewService {
         validateFilm(request.getFilmId());
         validateUser(request.getUserId());
         Review review = ReviewMapper.mapToReview(request);
-        reviewStorage.create(review);
+        review = reviewStorage.create(review);
         log.debug("Отзыв создан с ID: {}", review.getId());
-        return ReviewMapper.mapToReviewDto(reviewStorage.get(review.getId()).get());
+        return ReviewMapper.mapToReviewDto(review);
     }
 
     public ReviewDto update(UpdateReviewRequest request) {

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.review.NewReviewRequest;
 import ru.yandex.practicum.filmorate.dto.review.ReviewDto;
@@ -59,7 +58,6 @@ public class ReviewController {
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
         reviewService.removeLike(id, userId);
-  
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")

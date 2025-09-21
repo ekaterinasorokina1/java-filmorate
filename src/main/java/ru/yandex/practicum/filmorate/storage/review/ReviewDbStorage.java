@@ -15,9 +15,9 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE review SET content = ?, positive = ? WHERE review_id = ?";
     private static final String DELETE_QUERY = "DELETE FROM review WHERE review_id = ?";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM review ORDER BY useful LIMIT ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM review ORDER BY useful DESC LIMIT ?";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM review WHERE review_id = ?";
-    private static final String FIND_BY_FILM_QUERY = "SELECT * FROM review WHERE film_id = ? ORDER BY useful LIMIT ?";
+    private static final String FIND_BY_FILM_QUERY = "SELECT * FROM review WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
     private static final String LIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, true)";
     private static final String DISLIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, false)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = true";
@@ -64,18 +64,29 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
     public void like(int reviewId, int userId) {
         deleteDislike(reviewId, userId);
         jdbc.update(LIKE_QUERY, reviewId, userId);
+        updateUsefulCount(reviewId);
     }
 
     public void dislike(int reviewId, int userId) {
         deleteLike(reviewId, userId);
         jdbc.update(DISLIKE_QUERY, reviewId, userId);
+        updateUsefulCount(reviewId);
     }
 
     public void deleteLike(int reviewId, int userId) {
         delete(DELETE_LIKE_QUERY, reviewId, userId);
+        updateUsefulCount(reviewId);
     }
 
     public void deleteDislike(int reviewId, int userId) {
         delete(DELETE_DISLIKE_QUERY, reviewId, userId);
+        updateUsefulCount(reviewId);
+    }
+
+    private void updateUsefulCount(int reviewId) {
+        jdbc.update("UPDATE review SET useful = (" +
+                "SELECT COALESCE(SUM(CASE WHEN is_like = true THEN 1 ELSE -1 END), 0) " +
+                "FROM review_likes WHERE review_id = ?" +
+                ") WHERE review_id = ?", reviewId, reviewId);
     }
 }

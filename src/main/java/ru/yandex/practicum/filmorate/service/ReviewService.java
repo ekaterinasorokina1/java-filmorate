@@ -35,8 +35,8 @@ public class ReviewService {
     }
 
     public ReviewDto update(UpdateReviewRequest request) {
-        log.info("Обновление отзыва с ID: {}", request.getId());
-        Review updatedReview = reviewStorage.get(request.getId())
+        log.info("Обновление отзыва с ID: {}", request.getReviewId());
+        Review updatedReview = reviewStorage.get(request.getReviewId())
                 .map(review -> ReviewMapper.updateReviewFields(review, request))
                 .orElseThrow(() -> new NotFoundException("Отзыв не найден"));
 
@@ -67,8 +67,7 @@ public class ReviewService {
             return reviewStorage.getAll(count).stream()
                     .map(ReviewMapper::mapToReviewDto)
                     .collect(Collectors.toList());
-        }
-        else {
+        } else {
             validateFilm(filmId);
             return reviewStorage.getAllFromFilm(filmId, count).stream()
                     .map(ReviewMapper::mapToReviewDto)

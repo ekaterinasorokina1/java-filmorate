@@ -69,8 +69,8 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     @ResponseStatus(HttpStatus.OK)
-    public List<FilmDto> getRecommendations (@PathVariable int id) {
-    return userService.getRecomendations(id);
+    public List<FilmDto> getRecommendations(@PathVariable int id) {
+        return userService.getRecomendations(id);
     }
 
 }

@@ -63,16 +63,11 @@ public class ReviewService {
 
     public List<ReviewDto> getAll(int filmId, int count) {
         log.info("Получение всех отзывов для фильма ID: {} с ограничением в {} отзывов", filmId, count);
-        if (filmId == -1) {
-            return reviewStorage.getAll(count).stream()
-                    .map(ReviewMapper::mapToReviewDto)
-                    .collect(Collectors.toList());
-        } else {
-            validateFilm(filmId);
-            return reviewStorage.getAllFromFilm(filmId, count).stream()
-                    .map(ReviewMapper::mapToReviewDto)
-                    .collect(Collectors.toList());
-        }
+        validateFilm(filmId);
+        return reviewStorage.getAllFromFilm(filmId, count).stream()
+                .map(ReviewMapper::mapToReviewDto)
+                .collect(Collectors.toList());
+
     }
 
     public void like(int reviewId, int userId) {

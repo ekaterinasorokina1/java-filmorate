@@ -15,9 +15,8 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE review SET content = ?, positive = ? WHERE review_id = ?";
     private static final String DELETE_QUERY = "DELETE FROM review WHERE review_id = ?";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM review ORDER BY useful DESC LIMIT ?";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM review WHERE review_id = ?";
-    private static final String FIND_BY_FILM_QUERY = "SELECT * FROM review WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
+    private static final String FIND_BY_FILM_QUERY = "SELECT * FROM review WHERE (? IS NULL OR film_id = ?) ORDER BY useful DESC LIMIT ?;";
     private static final String LIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, true)";
     private static final String DISLIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, false)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = true";
@@ -49,16 +48,12 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
         delete(DELETE_QUERY, reviewId);
     }
 
-    public List<Review> getAll(int count) {
-        return findMany(FIND_ALL_QUERY, count);
-    }
-
     public Optional<Review> get(int reviewId) {
         return findOne(FIND_BY_ID_QUERY, reviewId);
     }
 
     public List<Review> getAllFromFilm(int filmId, int count) {
-        return findMany(FIND_BY_FILM_QUERY, filmId, count);
+        return findMany(FIND_BY_FILM_QUERY, filmId, filmId, count);
     }
 
     public void like(int reviewId, int userId) {

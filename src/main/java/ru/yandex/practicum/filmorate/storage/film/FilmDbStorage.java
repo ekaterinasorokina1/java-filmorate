@@ -6,7 +6,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.model.Film;
-
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -73,6 +72,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                     "JOIN likes AS l ON f.film_id = l.film_id " +
                     "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
                     "WHERE l.user_id = ?";
+    private static final String DELETE = "DELETE FROM film WHERE film_id = ?";
 
     private final JdbcTemplate jdbc;
 
@@ -175,5 +175,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     public List<Film> getLikedFilms(int userId) {
         return findMany(GET_LIKED_QUERY, userId);
+    }
+
+    public void deleteById(int id) {
+        delete(DELETE, id);
     }
 }

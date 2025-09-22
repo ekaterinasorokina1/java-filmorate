@@ -147,6 +147,12 @@ public class FilmService {
                 : mapFilmListToDto(filmStorage.getDirectorFilmsByLikes(directorId));
     }
 
+    public void deleteById(int id) {
+        validateFilm(id);
+        filmStorage.deleteById(id);
+        log.info("Фильм {} удален", id);
+    }
+
     private List<FilmDto> mapFilmListToDto(List<Film> films) {
         films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
         films.forEach(film -> film.setDirectors(directorService.getFilmDirectors(film.getId())));

@@ -14,7 +14,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE user_id = ?";
     private static final String INSERT_QUERY = "INSERT INTO users(email, login, name, birthday)" +
             "VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ? WHERE user_id = ?";
+    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
     private static final String ADD_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) " +
             "VALUES (?, ?)";
     private static final String FRIEND_GET_QUERY = "SELECT * FROM users u " +
@@ -58,6 +58,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
+                user.getBirthday(),
                 user.getId()
         );
         return user;

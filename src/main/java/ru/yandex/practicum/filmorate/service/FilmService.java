@@ -16,8 +16,6 @@ import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -121,6 +119,8 @@ public class FilmService {
         filmStorage.setLike(filmId, userId);
 
         log.info("Пользователь с id = {} добавил лайк фильму с id = {}", userId, filmId);
+
+        feedStorage.add(userId, FeedEventType.LIKE, FeedOperationType.ADD, filmId);
     }
 
     public void deleteLike(int filmId, int userId) {
@@ -128,6 +128,8 @@ public class FilmService {
         validateUser(userId);
         filmStorage.deleteLike(filmId, userId);
         log.info("Пользователь с id = {} удалил лайк фильму с id = {}", userId, filmId);
+
+        feedStorage.add(userId, FeedEventType.LIKE, FeedOperationType.REMOVE, filmId);
     }
 
     public List<FilmDto> getCommonFilms(int userId, int friendId) {

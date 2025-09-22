@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.*;
@@ -65,4 +66,9 @@ public class UserController {
         return userService.getCommonFriend(id, otherId);
     }
 
+    @GetMapping("/{id}/feed")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Feed> getFeed(@PathVariable int id) {
+        return userService.getFeed(id);
+    }
 }

@@ -73,7 +73,7 @@ public class FilmServiceTest {
         filmService.setLike(film2.getId(), user2.getId());
         filmService.setLike(film1.getId(), user.getId());
 
-        List<FilmDto> films = filmService.getPopularFilms(4);
+        List<FilmDto> films = filmService.getPopularFilms(4, null, null);
         assertThat(films).asList().size().isEqualTo(2);
         assertThat(films).asList().first().hasFieldOrPropertyWithValue("id", film2.getId());
     }

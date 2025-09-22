@@ -1,7 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.FeedEventType;
+import ru.yandex.practicum.filmorate.model.FeedOperationType;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
@@ -9,8 +15,6 @@ import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.rating.RatingStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -19,18 +23,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final RatingStorage ratingStorage;
     private final GenreStorage genreStorage;
-
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage, RatingStorage ratingStorage, GenreStorage genreStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-        this.ratingStorage = ratingStorage;
-        this.genreStorage = genreStorage;
-    }
+    private final FeedStorage feedStorage;
 
     public List<FilmDto> getPopularFilms(Integer count, Integer genreId, Integer year) {
         List<Film> films = filmStorage.getPopular(count, genreId, year);
@@ -96,6 +95,8 @@ public class FilmService {
         filmStorage.setLike(filmId, userId);
 
         log.info("Пользователь с id = {} добавил лайк фильму с id = {}", userId, filmId);
+
+        feedStorage.add(userId, FeedEventType.LIKE, FeedOperationType.ADD, filmId);
     }
 
     public void deleteLike(int filmId, int userId) {
@@ -103,6 +104,8 @@ public class FilmService {
         validateUser(userId);
         filmStorage.deleteLike(filmId, userId);
         log.info("Пользователь с id = {} удалил лайк фильму с id = {}", userId, filmId);
+
+        feedStorage.add(userId, FeedEventType.LIKE, FeedOperationType.REMOVE, filmId);
     }
 
     public List<FilmDto> getCommonFilms(int userId, int friendId) {

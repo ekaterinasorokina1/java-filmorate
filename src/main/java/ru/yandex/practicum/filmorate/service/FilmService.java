@@ -1,8 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.FeedEventType;
+import ru.yandex.practicum.filmorate.model.FeedOperationType;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
@@ -20,20 +26,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final RatingStorage ratingStorage;
     private final GenreStorage genreStorage;
     private final DirectorService directorService;
-
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage, RatingStorage ratingStorage, GenreStorage genreStorage, DirectorService directorService) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-        this.ratingStorage = ratingStorage;
-        this.genreStorage = genreStorage;
-        this.directorService = directorService;
-    }
+    private final FeedStorage feedStorage;
 
     public List<FilmDto> getPopularFilms(Integer count) {
         List<Film> films = filmStorage.getPopular(count);

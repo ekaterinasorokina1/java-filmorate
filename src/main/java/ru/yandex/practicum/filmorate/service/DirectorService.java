@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,13 +21,8 @@ public class DirectorService {
     }
 
     public Director getById(int id) {
-        Optional<Director> director = directorStorage.getById(id);
-
-        if (director.isEmpty()) {
-            throw new NotFoundException("Режиссер с id = " + id + " не найден");
-        }
-
-        return director.get();
+        return directorStorage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Режиссер с id = " + id + " не найден"));
     }
 
     public Director create(Director director) {

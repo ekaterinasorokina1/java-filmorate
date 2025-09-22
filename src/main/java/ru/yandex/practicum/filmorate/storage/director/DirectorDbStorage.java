@@ -59,6 +59,6 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
     }
 
     public void deleteById(int id) {
-        jdbc.update(DELETE, id);
+        delete(DELETE, id);
     }
 }

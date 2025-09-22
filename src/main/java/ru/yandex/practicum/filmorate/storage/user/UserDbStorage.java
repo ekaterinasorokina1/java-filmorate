@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.model.User;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +14,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE user_id = ?";
     private static final String INSERT_QUERY = "INSERT INTO users(email, login, name, birthday)" +
             "VALUES (?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ? WHERE user_id = ?";
+    private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
     private static final String ADD_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) " +
             "VALUES (?, ?)";
     private static final String FRIEND_GET_QUERY = "SELECT * FROM users u " +
@@ -27,7 +26,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
             "JOIN friends f1 ON u.user_id = f1.friend_id " +
             "JOIN friends f2 ON u.user_id = f2.friend_id " +
             "WHERE f1.user_id = ? AND f2.user_id = ?";
-
+    private static final String DELETE = "DELETE FROM users WHERE user_id = ?";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
@@ -59,6 +58,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
+                user.getBirthday(),
                 user.getId()
         );
         return user;
@@ -78,5 +78,9 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 
     public List<User> getCommonFriend(int userId, int otherId) {
         return findMany(GET_COMMON_FRIENDS_QUERY, userId, otherId);
+    }
+
+    public void deleteById(int id) {
+        delete(DELETE, id);
     }
 }

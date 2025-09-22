@@ -118,4 +118,9 @@ public class UserService {
                 .toList();
     }
 
+    public void deleteById(int id) {
+        validateUser(id);
+        userStorage.deleteById(id);
+        log.info("Пользователь {} удален", id);
+    }
 }

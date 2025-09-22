@@ -35,4 +35,6 @@ public class Film {
 
     @NotNull
     private Rating rating;
+
+    private List<Director> directors = new ArrayList<>();
 }

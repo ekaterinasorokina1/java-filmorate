@@ -30,6 +30,8 @@ public class NewFilmRequest {
 
     private List<Map<String, Integer>> genres = new ArrayList<>();
 
+    private List<Map<String, Integer>> directors = new ArrayList<>();
+
     @NotNull
     private Map<String, Integer> mpa;
 }

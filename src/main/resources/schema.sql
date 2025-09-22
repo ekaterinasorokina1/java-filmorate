@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS film (
     description varchar,
     releaseDate timestamp,
     duration integer,
-    rating_id INTEGER REFERENCES rating (rating_id) ON DELETE CASCADE
+    rating_id INTEGER REFERENCES rating (rating_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS genre (

@@ -74,13 +74,14 @@ public class ReviewService {
                 .orElseThrow(() -> new NotFoundException("Отзыв не найден"));
     }
 
-    public List<ReviewDto> getAll(int filmId, int count) {
+    public List<ReviewDto> getAll(Integer filmId, int count) {
         log.info("Получение всех отзывов для фильма ID: {} с ограничением в {} отзывов", filmId, count);
-        validateFilm(filmId);
+        if (filmId != null) {
+            validateFilm(filmId);
+        }
         return reviewStorage.getAllFromFilm(filmId, count).stream()
                 .map(ReviewMapper::mapToReviewDto)
                 .collect(Collectors.toList());
-
     }
 
     public void like(int reviewId, int userId) {

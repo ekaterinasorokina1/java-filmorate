@@ -17,7 +17,7 @@ public class GenreDbStorage extends BaseRepository<Genre> implements GenreStorag
             "FROM genre AS g " +
             "JOIN film_genre AS fg ON g.genre_id = fg.genre_id " +
             "WHERE fg.film_id = ? " +
-            "ORDER BY g.genre_id";
+            "ORDER BY g.genre_id ASC";
 
     public GenreDbStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);

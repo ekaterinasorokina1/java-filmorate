@@ -52,7 +52,7 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
         return findOne(FIND_BY_ID_QUERY, reviewId);
     }
 
-    public List<Review> getAllFromFilm(int filmId, int count) {
+    public List<Review> getAllFromFilm(Integer filmId, int count) {
         return findMany(FIND_BY_FILM_QUERY, filmId, filmId, count);
     }
 

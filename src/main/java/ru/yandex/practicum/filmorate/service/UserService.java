@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.FeedOperationType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Comparator;
@@ -30,9 +31,14 @@ public class UserService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final FeedStorage feedStorage;
+    private final GenreStorage genreStorage;
 
     public UserDto createUser(NewUserRequest request) {
         User user = UserMapper.mapToUser(request);
+
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
 
         user = userStorage.create(user);
 
@@ -56,6 +62,11 @@ public class UserService {
         User updatedUser = userStorage.getById(request.getId())
                 .map(user -> UserMapper.updateUserFields(user, request))
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        if (updatedUser.getName().isEmpty()) {
+            updatedUser.setName(updatedUser.getLogin());
+        }
+
         updatedUser = userStorage.update(updatedUser);
         return UserMapper.mapToUserDto(updatedUser);
     }
@@ -114,6 +125,7 @@ public class UserService {
 
         return filmStorage.getLikedFilms(mostCommonFilmsUserId).stream()
                 .filter(film -> !filmStorage.getLikedFilms(userId).contains(film))
+                .peek(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())))
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
     }

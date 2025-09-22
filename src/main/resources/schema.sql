@@ -1,4 +1,3 @@
-
 DROP TABLE IF EXISTS feed;
 DROP TABLE IF EXISTS review_likes;
 DROP TABLE IF EXISTS review;

@@ -3,19 +3,24 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.FeedEventType;
 import ru.yandex.practicum.filmorate.model.FeedOperationType;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -23,6 +28,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
     private final FeedStorage feedStorage;
 
     public UserDto createUser(NewUserRequest request) {
@@ -96,4 +102,20 @@ public class UserService {
     private void validateUser(int userId) {
         userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
+
+    public List<FilmDto> getRecomendations(int userId) {
+        validateUser(userId);
+        Integer mostCommonFilmsUserId = userStorage.getAll().stream()
+                .filter(user -> user.getId() != userId)
+                .map(user -> Map.entry(user.getId(), filmStorage.getCommonFilms(userId, user.getId()).size()))
+                .max(Comparator.comparingInt(Map.Entry::getValue))
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        return filmStorage.getLikedFilms(mostCommonFilmsUserId).stream()
+                .filter(film -> !filmStorage.getLikedFilms(userId).contains(film))
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
+    }
+
 }

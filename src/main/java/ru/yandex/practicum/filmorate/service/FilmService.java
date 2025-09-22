@@ -177,4 +177,28 @@ public class FilmService {
     private void validateUser(int userId) {
         userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
+
+    public List<FilmDto> searchFilms(String query, List<String> fields) {
+        String queryLowerCase = query.toLowerCase();
+
+        List<Film> allFilms = filmStorage.getAll();
+
+        allFilms.forEach(film -> {
+            film.setDirectors(directorService.getFilmDirectors(film.getId()));
+            film.setGenres(genreStorage.getFilmGenres(film.getId()));
+        });
+
+        List<Film> filtered = allFilms.stream()
+                .filter(film -> (fields.contains("title") && film.getName().toLowerCase().contains(queryLowerCase)) ||
+                        (fields.contains("director") && film.getDirectors().stream()
+                                .anyMatch(director -> director.getName().toLowerCase().contains(queryLowerCase))))
+                .distinct()
+                .collect(Collectors.toList());
+
+        filtered.sort((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()));
+
+        return filtered.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
+    }
 }

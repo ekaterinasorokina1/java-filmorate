@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.dto.film.NewFilmRequest;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -69,5 +70,19 @@ public class FilmController {
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable("id") int id) {
         filmService.deleteById(id);
+    }
+
+    @GetMapping("/search")
+    public List<FilmDto> searchFilms(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false, defaultValue = "title") String by
+    ) {
+
+        List<String> fields = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .toList();
+
+        return filmService.searchFilms(query, fields);
     }
 }

@@ -28,15 +28,15 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FilmService {
+    private final DirectorService directorService;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final RatingStorage ratingStorage;
     private final GenreStorage genreStorage;
-    private final DirectorService directorService;
     private final FeedStorage feedStorage;
 
-    public List<FilmDto> getPopularFilms(Integer count) {
-        List<Film> films = filmStorage.getPopular(count);
+    public List<FilmDto> getPopularFilms(Integer count, Integer genreId, Integer year) {
+        List<Film> films = filmStorage.getPopular(count, genreId, year);
         return mapFilmListToDto(films);
     }
 

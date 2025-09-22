@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.FeedEventType;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FilmService {
+    private final DirectorService directorService;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final RatingStorage ratingStorage;
@@ -44,6 +46,8 @@ public class FilmService {
         }
         Film filmExist = film.get();
         filmExist.setGenres(genreStorage.getFilmGenres(filmId));
+        filmExist.setDirectors(directorService.getFilmDirectors(filmId));
+
         return FilmMapper.mapToFilmDto(filmExist);
     }
 
@@ -60,13 +64,23 @@ public class FilmService {
             validateGenres(request.getGenres().stream().map(genre -> genre.get("id")).collect(Collectors.toList()));
         }
 
+        if (!request.getDirectors().isEmpty()) {
+            directorService.validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));
+        }
+
         List<Genre> genres = new ArrayList<>();
         new HashSet<>(request.getGenres()).forEach(genre -> {
             genres.add(genreStorage.getById(genre.get("id")).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
         });
 
+        List<Director> directors = new ArrayList<>();
+        new HashSet<>(request.getDirectors()).forEach(director -> {
+            directors.add(directorService.getById(director.get("id")));
+        });
+
         Film film = FilmMapper.mapToFilm(request);
         film.setGenres(genres);
+        film.setDirectors(directors);
         film.setRating(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
 
         film = filmStorage.create(film);
@@ -83,6 +97,16 @@ public class FilmService {
             genres.add(genreStorage.getById(genre.get("id")).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
         });
         updatedFilm.setGenres(genres);
+
+        if (!request.getDirectors().isEmpty()) {
+            directorService.validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));
+        }
+
+        List<Director> directors = new ArrayList<>();
+        new HashSet<>(request.getDirectors()).forEach(director -> {
+            directors.add(directorService.getById(director.get("id")));
+        });
+        updatedFilm.setDirectors(directors);
 
         updatedFilm = filmStorage.update(updatedFilm);
         return FilmMapper.mapToFilmDto(updatedFilm);
@@ -115,8 +139,17 @@ public class FilmService {
         return mapFilmListToDto(filmStorage.getCommonFilms(userId, friendId));
     }
 
+    public List<FilmDto> getDirectorFilms(int directorId, String sortBy) {
+        directorService.validateDirectors(Collections.singletonList(directorId));
+
+        return "year".equals(sortBy)
+                ? mapFilmListToDto(filmStorage.getDirectorFilmsByYear(directorId))
+                : mapFilmListToDto(filmStorage.getDirectorFilmsByLikes(directorId));
+    }
+
     private List<FilmDto> mapFilmListToDto(List<Film> films) {
         films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
+        films.forEach(film -> film.setDirectors(directorService.getFilmDirectors(film.getId())));
 
         return films.stream()
                 .map(FilmMapper::mapToFilmDto)

@@ -171,6 +171,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     public List<Film> getDirectorFilmsByLikes(int directorId) {
         return findMany(GET_FILM_DIRECTOR_BY_LIKES, directorId);
+    }
   
     public List<Film> getLikedFilms(int userId) {
         return findMany(GET_LIKED_QUERY, userId);

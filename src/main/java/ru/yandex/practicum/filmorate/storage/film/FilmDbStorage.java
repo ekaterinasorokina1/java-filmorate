@@ -21,7 +21,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "WHERE film_id = ?";
     private static final String INSERT_QUERY = "INSERT INTO film(name, description, releaseDate, duration, rating_id)" +
             "VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE film SET name = ?, description = ?, releaseDate = ?, duration = ? WHERE film_id = ?";
+    private static final String UPDATE_QUERY = "UPDATE film SET name = ?, description = ?, releaseDate = ?, duration = ?, rating_id = ? WHERE film_id = ?";
     private static final String INSERT_INTO_FILM_GENRES = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
     private static final String INSERT_INTO_FILM_DIRECTORS = "INSERT INTO film_director (film_id, director_id) VALUES (?, ?)";
     private static final String DELETE_FILM_DIRECTORS = "DELETE FROM film_director WHERE film_id = ?";
@@ -73,6 +73,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                     "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
                     "WHERE l.user_id = ?";
     private static final String DELETE = "DELETE FROM film WHERE film_id = ?";
+    private static final String DELETE_FILM_GENRES = "DELETE FROM film_genre WHERE film_id = ?";
 
     private final JdbcTemplate jdbc;
 
@@ -108,6 +109,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
+                film.getRating().getId(),
                 film.getId()
         );
         film.getGenres().forEach(genre -> setFilmGenres(film.getId(), genre.getId()));
@@ -179,5 +181,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
     public void deleteById(int id) {
         delete(DELETE, id);
+    }
+
+    public void deleteFilmGenres(int filmId) {
+        delete(DELETE_FILM_GENRES, filmId);
     }
 }

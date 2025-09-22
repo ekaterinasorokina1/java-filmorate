@@ -34,6 +34,9 @@ public class UserService {
     public UserDto createUser(NewUserRequest request) {
         User user = UserMapper.mapToUser(request);
 
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         user = userStorage.create(user);
 
         return UserMapper.mapToUserDto(user);
@@ -56,6 +59,11 @@ public class UserService {
         User updatedUser = userStorage.getById(request.getId())
                 .map(user -> UserMapper.updateUserFields(user, request))
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        if (updatedUser.getName().isEmpty()) {
+            updatedUser.setName(updatedUser.getLogin());
+        }
+
         updatedUser = userStorage.update(updatedUser);
         return UserMapper.mapToUserDto(updatedUser);
     }

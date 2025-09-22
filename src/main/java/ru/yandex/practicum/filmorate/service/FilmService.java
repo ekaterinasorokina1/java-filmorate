@@ -93,10 +93,21 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Фильм не найден"));
 
         List<Genre> genres = new ArrayList<>();
+
+        filmStorage.deleteFilmGenres(request.getId());
+
+        Set<Integer> genreUniqueIds = new HashSet<>();
         request.getGenres().forEach(genre -> {
-            genres.add(genreStorage.getById(genre.get("id")).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
+            if (!genreUniqueIds.contains(genre.get("id"))) {
+                genres.add(genreStorage.getById(genre.get("id")).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
+                genreUniqueIds.add(genre.get("id"));
+            }
         });
         updatedFilm.setGenres(genres);
+
+        updatedFilm.setRating(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
+
+        filmStorage.deleteDirectors(request.getId());
 
         if (!request.getDirectors().isEmpty()) {
             directorService.validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));

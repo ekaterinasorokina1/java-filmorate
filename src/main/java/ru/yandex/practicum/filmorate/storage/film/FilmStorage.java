@@ -28,4 +28,8 @@ public interface FilmStorage {
     List<Film> getLikedFilms(int userId);
 
     void deleteById(int id);
+
+    void deleteFilmGenres(int filmId);
+
+    void deleteDirectors(int filmId);
 }

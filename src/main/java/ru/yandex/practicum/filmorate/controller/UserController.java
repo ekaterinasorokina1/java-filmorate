@@ -74,9 +74,11 @@ public class UserController {
         return userService.getRecomendations(id);
     }
 
-    @GetMapping("/{id}/feed")
+
+   @GetMapping("/{id}/feed")
     @ResponseStatus(HttpStatus.OK)
     public List<Feed> getFeed(@PathVariable int id) {
         return userService.getFeed(id);
     }
+
 }

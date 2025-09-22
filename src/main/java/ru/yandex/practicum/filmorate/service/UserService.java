@@ -121,6 +121,6 @@ public class UserService {
     public void deleteById(int id) {
         validateUser(id);
         userStorage.deleteById(id);
-        log.info("Фильм {} удален", id);
+        log.info("Пользователь {} удален", id);
     }
 }

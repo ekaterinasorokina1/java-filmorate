@@ -190,6 +190,7 @@ public class FilmService {
                 .collect(Collectors.toList());
 
         filtered.sort((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()));
+        filtered.sort((film1, film2) -> Integer.compare(film2.getId(), film1.getId()));
 
         return filtered.stream()
                 .map(FilmMapper::mapToFilmDto)

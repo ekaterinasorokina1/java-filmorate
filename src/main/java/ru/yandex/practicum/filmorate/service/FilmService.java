@@ -203,35 +203,33 @@ public class FilmService {
         userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
+
+
+
+
+
+
+
     private void validateDirectors(List<Integer> ids) {
         ids.forEach(directorId -> directorStorage.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Режиссер с id = " + directorId + " не найден")));
     }
 
-    public List<FilmDto> searchFilms(String query, List<String> fields) {
-        String queryLowerCase = query.toLowerCase();
 
-        List<Film> allFilms = filmStorage.getAll();
+    public List<FilmDto> searchFilms(String query, String by) {
 
-        allFilms.forEach(film -> {
-            film.setDirectors(directorService.getFilmDirectors(film.getId()));
-            film.setGenres(genreStorage.getFilmGenres(film.getId()));
-        });
+        List<String> fields = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .toList();
 
-        List<Film> filtered = allFilms.stream()
-                .filter(film -> (fields.contains("title") && film.getName().toLowerCase().contains(queryLowerCase)) ||
-                        (fields.contains("director") && film.getDirectors().stream()
-                                .anyMatch(director -> director.getName().toLowerCase().contains(queryLowerCase))))
-                .distinct()
-                .collect(Collectors.toList());
-
-        filtered.sort(
-                Comparator.comparingInt((Film film) -> film.getLikes().size())
-                        .reversed()
-                        .thenComparingInt(Film::getId).reversed()
-        );
+        List<Film> filtered = filmStorage.searchFilms(query, fields);
 
         return filtered.stream()
+                .peek(film -> {
+                    film.setDirectors(directorService.getFilmDirectors(film.getId()));
+                    film.setGenres(genreStorage.getFilmGenres(film.getId()));
+                })
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }

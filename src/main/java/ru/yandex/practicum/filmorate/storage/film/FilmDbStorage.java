@@ -1,13 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,7 +77,14 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                     "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
                     "WHERE l.user_id = ?";
     private static final String DELETE = "DELETE FROM film WHERE film_id = ?";
-    private static final String DELETE_FILM_GENRES = "DELETE FROM film_genre WHERE film_id = ?";
+    private static final String DELETE_FILM_GENRES = "DELETE FROM film_genre WHERE film_id = ? ";
+    private static final String SEARCH_FILMS_BASE_QUERY =
+            "SELECT f.*, r.name rating_name " +
+                    "FROM film f " +
+                    "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
+                    "LEFT JOIN film_director fd ON f.film_id = fd.film_id " +
+                    "LEFT JOIN director d ON fd.director_id = d.director_id ";
+    private static final Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
 
     private final JdbcTemplate jdbc;
 
@@ -186,4 +197,30 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     public void deleteFilmGenres(int filmId) {
         delete(DELETE_FILM_GENRES, filmId);
     }
+
+    public List<Film> searchFilms(String query, List<String> fields) {
+        String search = "%" + query.toLowerCase() + "%";
+
+        List<Object> params = new ArrayList<>();
+        List<String> conditions = new ArrayList<>();
+
+        if (fields.contains("title")) {
+            log.info("Поиск по названию фильма - {}", query);
+            conditions.add("LOWER(f.name) LIKE ?");
+            params.add(search);
+        }
+        if (fields.contains("director")) {
+            log.info("Поиск по режиссеру фильма - {}", query);
+            conditions.add("LOWER(d.name) LIKE ?");
+            params.add(search);
+        }
+
+        String conditionsQuery = conditions.isEmpty() ? "" : "WHERE " + String.join(" OR ", conditions);
+        String sortingQuery = " ORDER BY (SELECT COUNT (*) FROM likes l WHERE l.film_id = f.film_id) DESC, f.film_id";
+
+        String fullQuery = SEARCH_FILMS_BASE_QUERY + conditionsQuery + sortingQuery;
+
+        return findMany(fullQuery, params.toArray());
+    }
+
 }

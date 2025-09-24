@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.FeedEventType;
 import ru.yandex.practicum.filmorate.model.FeedOperationType;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
@@ -32,6 +34,7 @@ public class FilmService {
     private final RatingStorage ratingStorage;
     private final GenreStorage genreStorage;
     private final FeedStorage feedStorage;
+    private final DirectorStorage directorStorage;
 
     public List<FilmDto> getPopularFilms(Integer count, Integer genreId, Integer year) {
         List<Film> films = filmStorage.getPopular(count, genreId, year);
@@ -41,7 +44,7 @@ public class FilmService {
     public FilmDto getFilm(int filmId) {
         Optional<Film> film = filmStorage.getById(filmId);
         if (film.isEmpty()) {
-            log.error("Отсутсвует фильм с id = {}", filmId);
+            log.error("Отсутствует фильм с id = {}", filmId);
             throw new NotFoundException("Фильм с id " + filmId + " не найден");
         }
         Film filmExist = film.get();
@@ -65,7 +68,7 @@ public class FilmService {
         }
 
         if (!request.getDirectors().isEmpty()) {
-            directorService.validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));
+            validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));
         }
 
         List<Genre> genres = new ArrayList<>();
@@ -113,7 +116,7 @@ public class FilmService {
         filmStorage.deleteDirectors(request.getId());
 
         if (!request.getDirectors().isEmpty()) {
-            directorService.validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));
+            validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));
         }
 
         List<Director> directors = new ArrayList<>();
@@ -154,7 +157,13 @@ public class FilmService {
     }
 
     public List<FilmDto> getDirectorFilms(int directorId, String sortBy) {
-        directorService.validateDirectors(Collections.singletonList(directorId));
+        validateDirectors(Collections.singletonList(directorId));
+
+        if (!"year".equals(sortBy) && !"likes".equals(sortBy)) {
+            throw new ValidationException("Сортировка фильмов может быть по количеству лайков или году выпуска");
+        }
+
+        log.info("Получение списка фильмов режиссёра с id = {}, сортировка по {}", directorId, sortBy);
 
         return "year".equals(sortBy)
                 ? mapFilmListToDto(filmStorage.getDirectorFilmsByYear(directorId))
@@ -193,6 +202,12 @@ public class FilmService {
     private void validateUser(int userId) {
         userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
+
+    private void validateDirectors(List<Integer> ids) {
+        ids.forEach(directorId -> directorStorage.getById(directorId)
+                .orElseThrow(() -> new NotFoundException("Режиссер с id = " + directorId + " не найден")));
+    }
+
 
     public List<FilmDto> searchFilms(String query, String by) {
 

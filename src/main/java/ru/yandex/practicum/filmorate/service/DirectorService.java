@@ -17,20 +17,27 @@ public class DirectorService {
     }
 
     public List<Director> getAll() {
+        log.info("Получение списка режиссёров");
+
         return directorStorage.getAll();
     }
 
     public Director getById(int id) {
+        log.info("Получение режиссёра с id = {}", id);
+
         return directorStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException("Режиссер с id = " + id + " не найден"));
     }
 
     public Director create(Director director) {
+        log.info("Добавление режиссёра: {}", director);
+
         return directorStorage.create(director);
     }
 
     public Director update(Director director) {
         getById(director.getId());
+        log.info("Обновление режиссёра с id = {}", director.getId());
 
         return directorStorage.update(director);
     }
@@ -42,11 +49,8 @@ public class DirectorService {
     }
 
     public List<Director> getFilmDirectors(int filmId) {
-        return directorStorage.getFilmDirectors(filmId);
-    }
+        log.info("Получение списка режиссёров для фильма с id = {}", filmId);
 
-    public void validateDirectors(List<Integer> ids) {
-        ids.forEach(directorId -> directorStorage.getById(directorId)
-                .orElseThrow(() -> new NotFoundException("Режиссер с id = " + directorId + " не найден")));
+        return directorStorage.getFilmDirectors(filmId);
     }
 }

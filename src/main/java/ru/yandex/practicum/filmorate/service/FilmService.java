@@ -203,6 +203,13 @@ public class FilmService {
         userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
+
+
+
+
+
+
+
     private void validateDirectors(List<Integer> ids) {
         ids.forEach(directorId -> directorStorage.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Режиссер с id = " + directorId + " не найден")));

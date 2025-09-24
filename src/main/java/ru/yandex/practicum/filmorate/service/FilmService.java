@@ -194,30 +194,20 @@ public class FilmService {
         userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
-    public List<FilmDto> searchFilms(String query, List<String> fields) {
-        String queryLowerCase = query.toLowerCase();
+    public List<FilmDto> searchFilms(String query, String by) {
 
-        List<Film> allFilms = filmStorage.getAll();
+        List<String> fields = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .toList();
 
-        allFilms.forEach(film -> {
-            film.setDirectors(directorService.getFilmDirectors(film.getId()));
-            film.setGenres(genreStorage.getFilmGenres(film.getId()));
-        });
-
-        List<Film> filtered = allFilms.stream()
-                .filter(film -> (fields.contains("title") && film.getName().toLowerCase().contains(queryLowerCase)) ||
-                        (fields.contains("director") && film.getDirectors().stream()
-                                .anyMatch(director -> director.getName().toLowerCase().contains(queryLowerCase))))
-                .distinct()
-                .collect(Collectors.toList());
-
-        filtered.sort(
-                Comparator.comparingInt((Film film) -> film.getLikes().size())
-                        .reversed()
-                        .thenComparingInt(Film::getId).reversed()
-        );
+        List<Film> filtered = filmStorage.searchFilms(query, fields);
 
         return filtered.stream()
+                .peek(film -> {
+                    film.setDirectors(directorService.getFilmDirectors(film.getId()));
+                    film.setGenres(genreStorage.getFilmGenres(film.getId()));
+                })
                 .map(FilmMapper::mapToFilmDto)
                 .collect(Collectors.toList());
     }

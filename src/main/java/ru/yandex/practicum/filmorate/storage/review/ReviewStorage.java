@@ -14,7 +14,7 @@ public interface ReviewStorage {
 
     Optional<Review> get(int reviewId);
 
-    List<Review> getAllFromFilm(int filmId, int count);
+    List<Review> getAllFromFilm(Integer filmId, int count);
 
     void like(int reviewId, int userId);
 

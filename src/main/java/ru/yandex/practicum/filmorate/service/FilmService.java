@@ -82,6 +82,8 @@ public class FilmService {
         });
 
         Film film = FilmMapper.mapToFilm(request);
+
+        genres.sort(Comparator.comparingInt(Genre::getId));
         film.setGenres(genres);
         film.setDirectors(directors);
         film.setRating(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
@@ -96,10 +98,22 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Фильм не найден"));
 
         List<Genre> genres = new ArrayList<>();
+
+        filmStorage.deleteFilmGenres(request.getId());
+
+        Set<Integer> genreUniqueIds = new HashSet<>();
+
         request.getGenres().forEach(genre -> {
-            genres.add(genreStorage.getById(genre.get("id")).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
+            if (!genreUniqueIds.contains(genre.get("id"))) {
+                genres.add(genreStorage.getById(genre.get("id")).orElseThrow(() -> new NotFoundException("Такого жанра нет")));
+                genreUniqueIds.add(genre.get("id"));
+            }
         });
         updatedFilm.setGenres(genres);
+
+        updatedFilm.setRating(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
+
+        filmStorage.deleteDirectors(request.getId());
 
         if (!request.getDirectors().isEmpty()) {
             validateDirectors(request.getDirectors().stream().map(director -> director.get("id")).collect(Collectors.toList()));
@@ -156,6 +170,14 @@ public class FilmService {
                 : mapFilmListToDto(filmStorage.getDirectorFilmsByLikes(directorId));
     }
 
+    public void deleteById(int id) {
+        validateFilm(id);
+        filmStorage.deleteById(id);
+        filmStorage.deleteFilmGenres(id);
+        filmStorage.deleteDirectors(id);
+        log.info("Фильм {} удален", id);
+    }
+
     private List<FilmDto> mapFilmListToDto(List<Film> films) {
         films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
         films.forEach(film -> film.setDirectors(directorService.getFilmDirectors(film.getId())));
@@ -184,5 +206,33 @@ public class FilmService {
     private void validateDirectors(List<Integer> ids) {
         ids.forEach(directorId -> directorStorage.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Режиссер с id = " + directorId + " не найден")));
+    }
+
+    public List<FilmDto> searchFilms(String query, List<String> fields) {
+        String queryLowerCase = query.toLowerCase();
+
+        List<Film> allFilms = filmStorage.getAll();
+
+        allFilms.forEach(film -> {
+            film.setDirectors(directorService.getFilmDirectors(film.getId()));
+            film.setGenres(genreStorage.getFilmGenres(film.getId()));
+        });
+
+        List<Film> filtered = allFilms.stream()
+                .filter(film -> (fields.contains("title") && film.getName().toLowerCase().contains(queryLowerCase)) ||
+                        (fields.contains("director") && film.getDirectors().stream()
+                                .anyMatch(director -> director.getName().toLowerCase().contains(queryLowerCase))))
+                .distinct()
+                .collect(Collectors.toList());
+
+        filtered.sort(
+                Comparator.comparingInt((Film film) -> film.getLikes().size())
+                        .reversed()
+                        .thenComparingInt(Film::getId).reversed()
+        );
+
+        return filtered.stream()
+                .map(FilmMapper::mapToFilmDto)
+                .collect(Collectors.toList());
     }
 }

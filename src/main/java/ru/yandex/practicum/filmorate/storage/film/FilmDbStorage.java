@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.BaseRepository;
+import ru.yandex.practicum.filmorate.dal.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.PreparedStatement;
@@ -79,11 +80,37 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String DELETE = "DELETE FROM film WHERE film_id = ?";
     private static final String DELETE_FILM_GENRES = "DELETE FROM film_genre WHERE film_id = ? ";
     private static final String SEARCH_FILMS_BASE_QUERY =
-            "SELECT f.*, r.name rating_name " +
+            "SELECT f.*, r.name AS rating_name " +
                     "FROM film f " +
                     "LEFT JOIN rating r ON f.rating_id = r.rating_id " +
                     "LEFT JOIN film_director fd ON f.film_id = fd.film_id " +
                     "LEFT JOIN director d ON fd.director_id = d.director_id ";
+    private static final String GET_RECOMMENDATIONS = """
+            SELECT f.*, r.name AS rating_name
+             FROM film f
+             LEFT JOIN rating r ON f.rating_id = r.rating_id
+             WHERE f.film_id IN (
+                 SELECT l2.film_id
+                 FROM likes l2
+                 WHERE l2.user_id = (
+                     SELECT l.user_id
+                     FROM likes l
+                     JOIN likes ul ON l.film_id = ul.film_id
+                     WHERE ul.user_id = ?
+                       AND l.user_id != ?
+                     GROUP BY l.user_id
+                     ORDER BY COUNT(*) DESC
+                     LIMIT 1
+                 )
+                 AND l2.film_id NOT IN (
+                     SELECT film_id
+                     FROM likes
+                     WHERE user_id = ?
+                 )
+             )
+            """;
+
+
     private static final Logger log = LoggerFactory.getLogger(FilmDbStorage.class);
 
     private final JdbcTemplate jdbc;
@@ -221,6 +248,11 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
         String fullQuery = SEARCH_FILMS_BASE_QUERY + conditionsQuery + sortingQuery;
 
         return findMany(fullQuery, params.toArray());
+    }
+
+    public List<Film> getRecommendations(int userId) {
+        log.info("Запрос рекомендаций для пользователя {}", userId);
+        return findMany(GET_RECOMMENDATIONS, userId, userId, userId);
     }
 
 }

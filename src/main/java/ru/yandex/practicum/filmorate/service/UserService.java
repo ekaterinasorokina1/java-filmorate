@@ -19,9 +19,7 @@ import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -116,15 +114,8 @@ public class UserService {
 
     public List<FilmDto> getRecomendations(int userId) {
         validateUser(userId);
-        Integer mostCommonFilmsUserId = userStorage.getAll().stream()
-                .filter(user -> user.getId() != userId)
-                .map(user -> Map.entry(user.getId(), filmStorage.getCommonFilms(userId, user.getId()).size()))
-                .max(Comparator.comparingInt(Map.Entry::getValue))
-                .map(Map.Entry::getKey)
-                .orElse(null);
 
-        return filmStorage.getLikedFilms(mostCommonFilmsUserId).stream()
-                .filter(film -> !filmStorage.getLikedFilms(userId).contains(film))
+        return filmStorage.getRecommendations(userId).stream()
                 .peek(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())))
                 .map(FilmMapper::mapToFilmDto)
                 .toList();

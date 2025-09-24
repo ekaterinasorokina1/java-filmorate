@@ -152,7 +152,6 @@ public class FilmService {
     public List<FilmDto> getCommonFilms(int userId, int friendId) {
         validateUser(userId);
         validateUser(friendId);
-        //Могу добавить валидацию что пользователи есть в друзьях друг у друга
         return mapFilmListToDto(filmStorage.getCommonFilms(userId, friendId));
     }
 

@@ -35,4 +35,7 @@ public interface FilmStorage {
     void deleteDirectors(int filmId);
 
     List<Film> searchFilms(String query, List<String> fields);
+
+    List<Film> getRecommendations(int userId);
+
 }

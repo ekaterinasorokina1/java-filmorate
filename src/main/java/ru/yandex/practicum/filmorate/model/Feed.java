@@ -6,20 +6,20 @@ import lombok.Data;
 @Data
 public class Feed {
     @NotNull
-    int eventId;
+    private int eventId;
 
     @NotNull
-    Long timestamp;
+    private Long timestamp;
 
     @NotNull
-    int userId;
+    private int userId;
 
     @NotNull
-    FeedEventType eventType;
+    private FeedEventType eventType;
 
     @NotNull
-    FeedOperationType operation;
+    private FeedOperationType operation;
 
     @NotNull
-    int entityId;
+    private int entityId;
 }

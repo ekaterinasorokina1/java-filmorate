@@ -41,11 +41,14 @@ public class UserService {
         }
 
         user = userStorage.create(user);
+        log.info("Добавление пользователя: {}", user);
 
         return UserMapper.mapToUserDto(user);
     }
 
     public List<UserDto> getUsers() {
+        log.info("Получение списка пользователей");
+
         return userStorage.getAll()
                 .stream()
                 .map(UserMapper::mapToUserDto)
@@ -53,6 +56,8 @@ public class UserService {
     }
 
     public UserDto getUserById(int userId) {
+        log.info("Получение пользователя с id = {}", userId);
+
         return userStorage.getById(userId)
                 .map(UserMapper::mapToUserDto)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID: " + userId));
@@ -68,6 +73,8 @@ public class UserService {
         }
 
         updatedUser = userStorage.update(updatedUser);
+        log.info("Обновление пользователя с id = {}", request.getId());
+
         return UserMapper.mapToUserDto(updatedUser);
     }
 

@@ -50,12 +50,15 @@ public class FilmService {
         Film filmExist = film.get();
         filmExist.setGenres(genreStorage.getFilmGenres(filmId));
         filmExist.setDirectors(directorService.getFilmDirectors(filmId));
+        log.info("Получение фильма с id = {}", filmId);
 
         return FilmMapper.mapToFilmDto(filmExist);
     }
 
     public List<FilmDto> getAll() {
         List<Film> films = filmStorage.getAll();
+        log.info("Получение списка фильмов");
+
         return mapFilmListToDto(films);
     }
 
@@ -89,6 +92,8 @@ public class FilmService {
         film.setRating(ratingStorage.findById(request.getMpa().get("id")).orElseThrow(() -> new NotFoundException("Такого рейтинга нет")));
 
         film = filmStorage.create(film);
+        log.info("Добавление фильма: {}", film);
+
         return FilmMapper.mapToFilmDto(film);
     }
 
@@ -126,6 +131,8 @@ public class FilmService {
         updatedFilm.setDirectors(directors);
 
         updatedFilm = filmStorage.update(updatedFilm);
+        log.info("Обновление фильма с id = {}", request.getId());
+
         return FilmMapper.mapToFilmDto(updatedFilm);
     }
 
@@ -202,18 +209,10 @@ public class FilmService {
         userStorage.getById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
-
-
-
-
-
-
-
     private void validateDirectors(List<Integer> ids) {
         ids.forEach(directorId -> directorStorage.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Режиссер с id = " + directorId + " не найден")));
     }
-
 
     public List<FilmDto> searchFilms(String query, String by) {
 

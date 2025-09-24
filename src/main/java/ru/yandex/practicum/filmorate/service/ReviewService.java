@@ -34,7 +34,7 @@ public class ReviewService {
         validateUser(request.getUserId());
         Review review = ReviewMapper.mapToReview(request);
         review = reviewStorage.create(review);
-        log.debug("Отзыв создан с ID: {}", review.getId());
+        log.info("Отзыв создан с ID: {}", review.getId());
 
         feedStorage.add(review.getUserId(), FeedEventType.REVIEW, FeedOperationType.ADD, review.getId());
 

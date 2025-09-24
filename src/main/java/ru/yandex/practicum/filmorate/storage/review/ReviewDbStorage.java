@@ -17,10 +17,8 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
     private static final String DELETE_QUERY = "DELETE FROM review WHERE review_id = ?";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM review WHERE review_id = ?";
     private static final String FIND_BY_FILM_QUERY = "SELECT * FROM review WHERE (? IS NULL OR film_id = ?) ORDER BY useful DESC LIMIT ?;";
-    private static final String LIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, true)";
-    private static final String DISLIKE_QUERY = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, false)";
-    private static final String DELETE_LIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = true";
-    private static final String DELETE_DISLIKE_QUERY = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = false";
+    private static final String INSERT_REVIEW_REACTION = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, ?)";
+    private static final String DELETE_REVIEW_REACTION = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = ?";
 
 
     public ReviewDbStorage(JdbcTemplate jdbc, RowMapper<Review> mapper) {
@@ -58,23 +56,23 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
 
     public void like(int reviewId, int userId) {
         deleteDislike(reviewId, userId);
-        jdbc.update(LIKE_QUERY, reviewId, userId);
+        jdbc.update(INSERT_REVIEW_REACTION, reviewId, userId, true);
         updateUsefulCount(reviewId);
     }
 
     public void dislike(int reviewId, int userId) {
         deleteLike(reviewId, userId);
-        jdbc.update(DISLIKE_QUERY, reviewId, userId);
+        jdbc.update(INSERT_REVIEW_REACTION, reviewId, userId, false);
         updateUsefulCount(reviewId);
     }
 
     public void deleteLike(int reviewId, int userId) {
-        delete(DELETE_LIKE_QUERY, reviewId, userId);
+        delete(DELETE_REVIEW_REACTION, reviewId, userId, true);
         updateUsefulCount(reviewId);
     }
 
     public void deleteDislike(int reviewId, int userId) {
-        delete(DELETE_DISLIKE_QUERY, reviewId, userId);
+        delete(DELETE_REVIEW_REACTION, reviewId, userId, false);
         updateUsefulCount(reviewId);
     }
 

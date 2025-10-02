@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dto;
+package ru.yandex.practicum.filmorate.dto.film;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -25,6 +25,8 @@ public class UpdateFilmRequest {
     private Set<Integer> likes = new HashSet<>();
 
     private List<Map<String, Integer>> genres = new ArrayList<>();
+
+    private List<Map<String, Integer>> directors = new ArrayList<>();
 
     private Map<String, Integer> mpa;
 
